@@ -52,7 +52,7 @@ export default function Contact() {
   return (
     <section id="contact" ref={sectionRef} className="py-24 md:py-32" style={{ background: 'var(--bg)' }}>
       <div className="section-container">
-        <div className="relative rounded-3xl overflow-hidden p-10 md:p-16 reveal" style={{ background: 'var(--text-primary)' }}>
+        <div className="relative rounded-3xl overflow-hidden p-10 md:p-16 reveal bg-[#161616] dark:bg-[#1A1A1A] border border-[var(--border)]">
           {/* Orbs */}
           <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
             <div className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl opacity-20" style={{ background: 'var(--accent)' }} />
@@ -61,19 +61,19 @@ export default function Contact() {
 
           <div className="relative z-10 max-w-3xl">
             {/* Badge */}
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono mb-6" style={{ background: 'rgba(232,93,61,0.2)', color: 'var(--accent-soft)', border: '1px solid rgba(232,93,61,0.3)' }}>
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono mb-6" style={{ background: 'rgba(232,93,61,0.15)', color: '#FF8A70', border: '1px solid rgba(232,93,61,0.25)' }}>
               <span className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: 'var(--accent)' }} />
               {c.badge[lang]}
             </span>
 
             {/* Heading */}
-            <h2 className="font-display font-bold leading-tight mb-4" style={{ fontSize: 'clamp(2rem, 6vw, 4rem)', color: 'var(--bg)' }}>
+            <h2 className="font-display font-bold leading-tight mb-4" style={{ fontSize: 'clamp(2rem, 6vw, 4rem)', color: '#F5F3EE' }}>
               {c.heading1[lang]}{' '}
               <span style={{ color: 'var(--accent)' }}>{c.heading2[lang]}</span>{' '}
               {c.heading3[lang]}
             </h2>
 
-            <p className="font-body text-base leading-relaxed mb-10 max-w-xl" style={{ color: 'rgba(245,243,238,0.6)' }}>
+            <p className="font-body text-base leading-relaxed mb-10 max-w-xl" style={{ color: 'rgba(245,243,238,0.65)' }}>
               {c.sub[lang]}
             </p>
 
@@ -82,14 +82,14 @@ export default function Contact() {
               <button
                 id="copy-email-btn"
                 onClick={handleCopy}
-                className="flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-200 group flex-1 sm:flex-none"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--bg)' }}
+                className="flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-200 group flex-1 sm:flex-none cursor-pointer"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#F5F3EE' }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'rgba(245,243,238,0.5)' }}>
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
                 </svg>
                 <span className="font-mono text-sm">{EMAIL}</span>
-                <span className="ml-auto px-2 py-1 rounded-lg text-xs font-mono transition-all duration-200" style={{ background: copied ? 'rgba(232,93,61,0.3)' : 'rgba(255,255,255,0.1)', color: copied ? 'var(--accent-soft)' : 'rgba(245,243,238,0.4)' }}>
+                <span className="ml-auto px-2 py-1 rounded-lg text-xs font-mono transition-all duration-200" style={{ background: copied ? 'rgba(232,93,61,0.25)' : 'rgba(255,255,255,0.1)', color: copied ? '#FF8A70' : 'rgba(245,243,238,0.4)' }}>
                   {copied ? c.copied[lang] : c.copy[lang]}
                 </span>
               </button>
@@ -104,7 +104,7 @@ export default function Contact() {
 
             {/* Socials */}
             <div className="flex items-center gap-3">
-              <span className="text-sm font-body mr-2" style={{ color: 'rgba(245,243,238,0.4)' }}>
+              <span className="text-sm font-body mr-2" style={{ color: 'rgba(245,243,238,0.45)' }}>
                 {c.findMe[lang]}
               </span>
               {SOCIALS.map((s) => (
@@ -115,7 +115,7 @@ export default function Contact() {
                   rel="noopener noreferrer"
                   aria-label={s.label}
                   className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110"
-                  style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(245,243,238,0.6)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(245,243,238,0.6)', border: '1px solid rgba(255,255,255,0.08)' }}
                 >
                   {s.icon}
                 </a>
