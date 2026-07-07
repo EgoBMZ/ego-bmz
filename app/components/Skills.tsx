@@ -71,6 +71,39 @@ export default function Skills() {
             </div>
           ))}
         </div>
+
+        {/* Banner CTA below bento grid */}
+        <div
+          className="mt-12 rounded-3xl p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 reveal delay-300"
+          style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-[var(--accent)]"
+              style={{ background: 'var(--accent-dim)' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div>
+              <h4 className="font-display font-bold text-lg leading-tight mb-1" style={{ color: 'var(--text-primary)' }}>
+                {lang === 'es' ? '¿Buscas un stack diferente?' : 'Looking for a different stack?'}
+              </h4>
+              <p className="font-body text-xs" style={{ color: 'var(--text-muted)' }}>
+                {lang === 'es' ? 'Trabajo también con otras tecnologías web y móviles. Hablemos de tu proyecto.' : 'I also work with other mobile and web tech. Let\'s chat about your project.'}
+              </p>
+            </div>
+          </div>
+          <a href="#contact" className="btn-accent text-sm py-2.5 px-5 self-stretch sm:self-auto justify-center">
+            {lang === 'es' ? 'Pregúntame' : 'Ask me anything'}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
       </div>
     </section>
   );

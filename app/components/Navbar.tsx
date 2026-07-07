@@ -162,6 +162,30 @@ export default function Navbar() {
                 <span style={{ color: 'var(--text-faint)' }}>{lang === 'es' ? 'EN' : 'ES'}</span>
               </button>
 
+              {/* GitHub */}
+              <a
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-[var(--surface-alt)] hover:text-[var(--accent)]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <GithubIcon />
+              </a>
+
+              {/* LinkedIn */}
+              <a
+                href={LINKEDIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-[var(--surface-alt)] hover:text-[var(--accent)]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <LinkedInIcon />
+              </a>
+
               {/* Theme toggle */}
               <button
                 id="theme-toggle-desktop"

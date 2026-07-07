@@ -39,8 +39,8 @@ export const translations = {
     chip4:   { es: 'CI/CD',              en: 'CI/CD' },
     chip5:   { es: 'Animaciones',         en: 'Animations' },
     chip6:   { es: 'Accesibilidad',       en: 'Accessibility' },
-    heading: { es: '¡Hola! Soy', en: "Hi! I'm" },
-    headingEnd: { es: ', y creo apps que', en: ', and I build apps that' },
+    heading: { es: '¡Hola! Soy Diego', en: "Hi! I'm Diego" },
+    headingEnd: { es: ' (pero me dicen Ego), y creo apps que', en: ' (but you can call me Ego), and I build apps that' },
     headingHighlight: { es: 'la gente ama.', en: 'people love.' },
     p1: {
       es: 'Soy desarrollador de software enfocado en crear experiencias móviles y web de alta calidad. Con React Native + Expo construyo apps multiplataforma que se sienten nativas en iOS y Android, y con Next.js creo productos web rápidos y optimizados para SEO.',
