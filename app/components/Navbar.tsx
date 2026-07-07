@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTheme } from '../providers/ThemeProvider';
 import { useLang } from '../providers/LanguageProvider';
 
@@ -69,12 +70,15 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
 
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
   const NAV_LINKS = [
-    { href: '#about',    label: t.nav.about[lang] },
-    { href: '#stack',    label: t.nav.stack[lang] },
-    { href: '#projects', label: t.nav.projects[lang] },
-    { href: '#process',  label: t.nav.process[lang] },
-    { href: '#contact',  label: t.nav.contact[lang] },
+    { href: isHome ? '#about' : '/#about',       label: t.nav.about[lang] },
+    { href: isHome ? '#stack' : '/#stack',       label: t.nav.stack[lang] },
+    { href: isHome ? '#projects' : '/#projects', label: t.nav.projects[lang] },
+    { href: isHome ? '#process' : '/#process',   label: t.nav.process[lang] },
+    { href: isHome ? '#contact' : '/#contact',   label: t.nav.contact[lang] },
   ];
 
   useEffect(() => {
@@ -117,7 +121,7 @@ export default function Navbar() {
         <div className="section-container">
           <nav className="flex items-center justify-between h-16 md:h-18">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-2.5 group" aria-label="EgoBMZ Home">
+            <a href="/" className="flex items-center gap-2.5 group" aria-label="EgoBMZ Home">
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-display font-bold text-sm transition-transform duration-300 group-hover:scale-110"
                 style={{ background: 'var(--accent)' }}
@@ -200,7 +204,7 @@ export default function Navbar() {
               </button>
 
               {/* CTA */}
-              <a href="#contact" className="btn-primary text-sm px-4 py-2.5">
+              <a href={isHome ? '#contact' : '/#contact'} className="btn-primary text-sm px-4 py-2.5">
                 {t.nav.cta[lang]}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="7" y1="17" x2="17" y2="7"/>
@@ -280,7 +284,7 @@ export default function Navbar() {
           </ul>
 
           {/* CTA */}
-          <a href="#contact" onClick={handleNavClick} className="btn-accent w-full justify-center">
+          <a href={isHome ? '#contact' : '/#contact'} onClick={handleNavClick} className="btn-accent w-full justify-center">
             {t.nav.ctaMobile[lang]}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>

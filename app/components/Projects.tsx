@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useLang } from '../providers/LanguageProvider';
 
 function ExternalLinkIcon() {
@@ -70,9 +71,9 @@ export default function Projects() {
                     </span>
                   </div>
                   {/* Link */}
-                  <a href="#" className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0" style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', backdropFilter: 'blur(8px)' }} aria-label={`View ${project.title}`}>
+                  <Link href={`/projects/${project.id}`} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0" style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', backdropFilter: 'blur(8px)' }} aria-label={`View ${project.title}`}>
                     <ExternalLinkIcon />
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Content */}
