@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useLang } from '../providers/LanguageProvider';
+import { Project } from '../lib/projects';
 
 function ExternalLinkIcon() {
   return (
@@ -22,10 +23,10 @@ function ArrowRight() {
   );
 }
 
-export default function Projects() {
+export default function Projects({ projects }: { projects: Project[] }) {
   const { lang, t } = useLang();
   const sectionRef = useRef<HTMLDivElement>(null);
-  const proj = t.projects;
+  const projTranslations = t.projects;
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -45,29 +46,38 @@ export default function Projects() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16">
           <div className="reveal">
-            <span className="tag tag-accent mb-4 inline-flex">{proj.tag[lang]}</span>
+            <span className="tag tag-accent mb-4 inline-flex">{projTranslations.tag[lang]}</span>
             <h2 className="font-display font-bold text-4xl md:text-5xl leading-tight" style={{ color: 'var(--text-primary)' }}>
-              {proj.heading[lang]}
+              {projTranslations.heading[lang]}
             </h2>
           </div>
           <a href="#contact" className="btn-ghost text-sm self-start sm:self-auto reveal delay-100">
-            {proj.ctaBtn[lang]} <ArrowRight />
+            {projTranslations.ctaBtn[lang]} <ArrowRight />
           </a>
         </div>
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {proj.items.map((project, i) => (
+          {(projects && projects.length > 0 ? projects : projTranslations.items).map((project: any, i: number) => (
             <article key={project.title} id={`proj-${i + 1}`} className="reveal group" style={{ animationDelay: `${i * 80}ms` }}>
               <div className="card h-full flex flex-col overflow-hidden" style={{ minHeight: '320px' }}>
                 {/* Gradient header */}
                 <div className="relative h-40 md:h-48 flex items-center justify-center overflow-hidden flex-shrink-0" style={{ background: project.gradient }}>
                   <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0,0,0,0.2) 0%, transparent 50%)` }} />
-                  <span className="relative text-6xl select-none transition-transform duration-500 group-hover:scale-110" role="img" aria-hidden="true">{project.emoji}</span>
+                  {/* Logo/Icon */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-24 h-24 rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden transition-transform duration-300 group-hover:scale-110" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      {project.logoUrl ? (
+                        <img src={project.logoUrl} alt={`${project.title} Logo`} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-4xl text-white font-bold">{project.title[0]}</span>
+                      )}
+                    </div>
+                  </div>
                   {/* Type badge */}
                   <div className="absolute top-4 left-4">
                     <span className="font-mono text-xs px-3 py-1 rounded-full font-medium" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.25)' }}>
-                      {project.type[lang]}
+                      {lang === 'es' ? (project.type_es || project.type?.es) : (project.type_en || project.type?.en)}
                     </span>
                   </div>
                   {/* Link */}
@@ -83,11 +93,11 @@ export default function Projects() {
                       {project.title}
                     </h3>
                     <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                      {project.desc[lang]}
+                      {lang === 'es' ? (project.desc_es || project.desc?.es) : (project.desc_en || project.desc?.en)}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-auto">
-                    {project.tags.map((tag) => <span key={tag} className="tag text-xs">{tag}</span>)}
+                    {project.tags.map((tag: string) => <span key={tag} className="tag text-xs">{tag}</span>)}
                   </div>
                 </div>
               </div>
@@ -98,11 +108,11 @@ export default function Projects() {
         {/* CTA block */}
         <div className="mt-12 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 reveal" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
           <div>
-            <h3 className="font-display font-bold text-2xl md:text-3xl mb-2" style={{ color: 'var(--text-primary)' }}>{proj.ctaHeading[lang]}</h3>
-            <p className="font-body text-sm" style={{ color: 'var(--text-muted)' }}>{proj.ctaDesc[lang]}</p>
+            <h3 className="font-display font-bold text-2xl md:text-3xl mb-2" style={{ color: 'var(--text-primary)' }}>{projTranslations.ctaHeading[lang]}</h3>
+            <p className="font-body text-sm" style={{ color: 'var(--text-muted)' }}>{projTranslations.ctaDesc[lang]}</p>
           </div>
           <a href="#contact" className="btn-accent flex-shrink-0">
-            {proj.ctaStart[lang]}
+            {projTranslations.ctaStart[lang]}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
             </svg>

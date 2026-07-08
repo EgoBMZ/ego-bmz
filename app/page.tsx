@@ -7,7 +7,10 @@ import Process from './components/Process';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
-export default function Home() {
+import { getProjects } from './lib/projects';
+
+export default async function Home() {
+  const projects = await getProjects();
   return (
     <>
       <Navbar />
@@ -15,7 +18,7 @@ export default function Home() {
         <Hero />
         <About />
         <Skills />
-        <Projects />
+        <Projects projects={projects} />
         <Process />
         <Contact />
       </main>

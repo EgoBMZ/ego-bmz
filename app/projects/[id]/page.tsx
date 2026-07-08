@@ -48,23 +48,34 @@ function PlayIcon() {
   );
 }
 
+import { Project, getProjects } from '../../lib/projects';
+
 export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { lang, t } = useLang();
   const [mounted, setMounted] = useState(false);
+  const [projectsData, setProjectsData] = useState<Project[] | null>(null);
   
   useEffect(() => {
-    setMounted(true);
-    
-    // Trigger reveal animations
-    setTimeout(() => {
-      const reveals = document.querySelectorAll('.reveal');
-      reveals.forEach(el => el.classList.add('visible'));
-    }, 100);
+    const load = async () => {
+      const data = await getProjects();
+      setProjectsData(data);
+      setMounted(true);
+      
+      // Trigger reveal animations
+      setTimeout(() => {
+        const reveals = document.querySelectorAll('.reveal');
+        reveals.forEach(el => el.classList.add('visible'));
+      }, 100);
+    };
+    load();
   }, [id]);
 
-  const project = t.projects.items.find((p: any) => p.id === id);
-  const otherProjects = t.projects.items.filter((p: any) => p.id !== id);
+  // Fallback to translations if firestore is empty
+  const projectList = (projectsData && projectsData.length > 0) ? projectsData : t.projects.items;
+
+  const project = projectList.find((p: any) => p.id === id);
+  const otherProjects = projectList.filter((p: any) => p.id !== id);
 
   if (!mounted) return <div className="min-h-screen" style={{ background: 'var(--bg)' }} />;
 
@@ -106,12 +117,12 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             </div>
             
             <div className="flex-1 reveal" style={{ animationDelay: '100ms' }}>
-              <span className="tag mb-4 inline-block">{project.type[lang]}</span>
+              <span className="tag mb-4 inline-block">{lang === 'es' ? (project.type_es || project.type?.es) : (project.type_en || project.type?.en)}</span>
               <h1 className="font-display font-bold text-5xl md:text-7xl leading-tight mb-6" style={{ color: 'var(--text-primary)' }}>
                 {project.title}
               </h1>
               <p className="font-body text-lg md:text-xl leading-relaxed mb-8 max-w-2xl" style={{ color: 'var(--text-muted)' }}>
-                {project.desc[lang]}
+                {lang === 'es' ? (project.desc_es || project.desc?.es) : (project.desc_en || project.desc?.en)}
               </p>
               
               {/* Project Links (Live, Repo, Video) */}
@@ -140,10 +151,40 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
              <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" style={{ background: project.gradient, opacity: 0.8 }} />
              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} />
              <div className="absolute inset-0 flex flex-col items-center justify-center text-white/70 backdrop-blur-sm">
-                <span className="text-4xl md:text-6xl mb-4">{project.emoji}</span>
-                <span className="font-mono text-sm md:text-base uppercase tracking-widest">{lang === 'es' ? 'Captura principal de la app' : 'Main App Screenshot'}</span>
+                {project.logoUrl ? (
+                  <img src={project.logoUrl} alt="Logo" className="w-32 h-32 object-contain mb-4" />
+                ) : (
+                  <span className="text-6xl text-white font-bold mb-4">{project.title[0]}</span>
+                )}
+                <span className="font-mono text-sm md:text-base uppercase tracking-widest">{lang === 'es' ? 'VISTA PREVIA' : 'PREVIEW'}</span>
              </div>
           </div>
+          {/* Image Gallery Section */}
+          {(project.mainScreenshotUrl || project.uiDetail1Url || project.uiDetail2Url) && (
+            <div className="section-container mt-32 mb-32 reveal">
+              <h2 className="font-display font-bold text-3xl md:text-4xl mb-12 text-center" style={{ color: 'var(--text-primary)' }}>
+                {lang === 'es' ? 'Galería del Proyecto' : 'Project Gallery'}
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {project.mainScreenshotUrl && (
+                  <div className={`rounded-3xl overflow-hidden shadow-2xl ${!(project.uiDetail1Url || project.uiDetail2Url) ? 'md:col-span-2' : 'md:col-span-2'}`}>
+                    <img src={project.mainScreenshotUrl} alt="Main Screenshot" className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700" />
+                  </div>
+                )}
+                {project.uiDetail1Url && (
+                  <div className="rounded-3xl overflow-hidden shadow-xl mt-6 md:mt-0">
+                    <img src={project.uiDetail1Url} alt="UI Detail 1" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  </div>
+                )}
+                {project.uiDetail2Url && (
+                  <div className="rounded-3xl overflow-hidden shadow-xl mt-6 md:mt-0">
+                    <img src={project.uiDetail2Url} alt="UI Detail 2" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Technical Details Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 mb-32 reveal">
@@ -180,22 +221,6 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               </div>
             </div>
           </div>
-          
-          {/* Secondary Mockups */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-32 reveal">
-            <div className="h-80 md:h-[500px] rounded-3xl relative overflow-hidden group shadow-lg" style={{ border: '1px solid var(--border)', background: 'var(--bg)' }}>
-              <div className="absolute inset-0 opacity-40 transition-transform duration-700 group-hover:scale-105" style={{ background: project.gradient }} />
-              <div className="absolute inset-0 flex items-center justify-center text-white/60 backdrop-blur-sm">
-                 <span className="font-mono text-sm uppercase tracking-widest bg-black/30 px-4 py-2 rounded-full">{lang === 'es' ? 'Detalle UI 1' : 'UI Detail 1'}</span>
-              </div>
-            </div>
-            <div className="h-80 md:h-[500px] rounded-3xl relative overflow-hidden group shadow-lg" style={{ border: '1px solid var(--border)', background: 'var(--bg)' }}>
-               <div className="absolute inset-0 opacity-20 transition-transform duration-700 group-hover:scale-105" style={{ background: project.gradient }} />
-               <div className="absolute inset-0 flex items-center justify-center" style={{ color: 'var(--text-primary)' }}>
-                 <span className="font-mono text-sm uppercase tracking-widest bg-[var(--surface)] px-4 py-2 rounded-full shadow-md">{lang === 'es' ? 'Detalle UI 2' : 'UI Detail 2'}</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* More Projects Section (Horizontal Scroll) */}
@@ -212,13 +237,17 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               {otherProjects.map((p: any) => (
                 <Link href={`/projects/${p.id}`} key={p.id} className="snap-start flex-shrink-0 w-[300px] md:w-[400px] group">
                   <div className="card h-full flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl" style={{ border: '1px solid var(--border)', background: 'var(--bg)' }}>
-                    <div className="relative h-48 flex items-center justify-center overflow-hidden flex-shrink-0" style={{ background: p.gradient }}>
+                    <div className="relative h-48 overflow-hidden rounded-t-3xl flex-shrink-0 flex items-center justify-center" style={{ background: p.gradient }}>
+                      {p.logoUrl ? (
+                        <img src={p.logoUrl} alt="Logo" className="w-24 h-24 object-cover rounded-xl shadow-lg" />
+                      ) : (
+                        <span className="text-5xl text-white font-bold">{p.title[0]}</span>
+                      )}
                       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0,0,0,0.2) 0%, transparent 50%)` }} />
-                      <span className="relative text-6xl select-none transition-transform duration-500 group-hover:scale-110" role="img" aria-hidden="true">{p.emoji}</span>
                     </div>
                     <div className="p-6 flex flex-col flex-1">
                       <h3 className="font-display font-bold text-xl mb-2" style={{ color: 'var(--text-primary)' }}>{p.title}</h3>
-                      <p className="font-body text-sm leading-relaxed mb-4 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{p.desc[lang]}</p>
+                      <p className="font-body text-sm leading-relaxed mb-4 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{lang === 'es' ? (p.desc_es || p.desc?.es) : (p.desc_en || p.desc?.en)}</p>
                       <div className="mt-auto flex items-center font-medium text-sm transition-colors duration-200 group-hover:text-[var(--accent)]" style={{ color: 'var(--text-primary)' }}>
                         {lang === 'es' ? 'Ver proyecto' : 'View project'} <ArrowRight />
                       </div>
