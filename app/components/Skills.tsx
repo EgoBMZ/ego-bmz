@@ -50,38 +50,29 @@ export default function Skills() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-16">
-          {categories.map((cat, catIdx) => {
-            const catTechs = STACK_BASE.filter(t => t.category === cat);
-            return (
-              <div key={cat} className="flex flex-col gap-6">
-                <h3 className="font-display text-2xl font-bold reveal" style={{ color: 'var(--text-primary)' }}>
-                  {sk.cats[cat as keyof typeof sk.cats][lang]}
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {catTechs.map((tech, i) => (
-                    <div
-                      key={tech.name}
-                      className={`reveal card group cursor-default ${tech.size === 'large' ? 'col-span-2 md:col-span-2' : ''}`}
-                      style={{ animationDelay: `${i * 60}ms` }}
-                    >
-                      <div className="p-6 h-full flex flex-col gap-4">
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ background: `${tech.color}18`, color: tech.color }}>
-                          {tech.icon}
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-display font-semibold text-base mb-1" style={{ color: 'var(--text-primary)' }}>{tech.name}</div>
-                          <p className="font-body text-sm" style={{ color: 'var(--text-muted)' }}>
-                            {sk.descs[tech.name as keyof typeof sk.descs]?.[lang] || ''}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {STACK_BASE.map((tech, i) => (
+            <div
+              key={tech.name}
+              className={`reveal card group cursor-default ${tech.size === 'large' ? 'col-span-2 md:col-span-2' : ''}`}
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
+              <div className="p-6 h-full flex flex-col gap-4">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ background: `${tech.color}18`, color: tech.color }}>
+                  {tech.icon}
                 </div>
+                <div className="flex-1">
+                  <div className="font-display font-semibold text-base mb-1" style={{ color: 'var(--text-primary)' }}>{tech.name}</div>
+                  <p className="font-body text-sm" style={{ color: 'var(--text-muted)' }}>
+                    {sk.descs[tech.name as keyof typeof sk.descs]?.[lang] || ''}
+                  </p>
+                </div>
+                <span className="tag self-start text-xs">
+                  {sk.cats[tech.category as keyof typeof sk.cats][lang]}
+                </span>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         {/* Banner CTA below bento grid */}
