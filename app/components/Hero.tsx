@@ -91,7 +91,7 @@ export default function Hero() {
         <div className="absolute bottom-1/4 -left-32 w-72 h-72 rounded-full blur-3xl opacity-10 animate-float" style={{ background: 'var(--accent-soft)', animationDelay: '2s' }} />
       </div>
 
-      <div className="section-container relative z-10 w-full py-20 md:py-32">
+      <div className="section-container relative z-10 w-full pt-20 pb-36 md:pt-32 md:pb-48">
         <div className="max-w-4xl">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 mb-8 animate-fade-in-up">
