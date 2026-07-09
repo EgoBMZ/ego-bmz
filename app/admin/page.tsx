@@ -5,6 +5,13 @@ import { signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/aut
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { auth, googleProvider, storage } from '../lib/firebase';
 import { Project, getProjects, saveProject, deleteProject } from '../lib/projects';
+import { useLang } from '../providers/LanguageProvider';
+
+const HeartIcon = ({ solid }: { solid: boolean }) => (
+  <svg className={`w-5 h-5 transition-colors ${solid ? 'text-red-500 fill-current' : 'text-gray-400 stroke-current fill-none'}`} viewBox="0 0 24 24" strokeWidth="2">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+  </svg>
+);
 
 // Original hardcoded data for seeding
 const SEED_PROJECTS: Project[] = [
@@ -60,13 +67,18 @@ const SEED_PROJECTS: Project[] = [
 
 const ADMIN_EMAIL = 'egobmz@gmail.com'; // Change if needed
 
+interface ProjectInput extends Omit<Project, 'tags'> {
+  tags: string | string[];
+}
+
 export default function AdminDashboard() {
+  const { lang } = useLang();
   const [user, setUser] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editingProject, setEditingProject] = useState<ProjectInput | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
@@ -127,10 +139,12 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!editingProject) return;
     setIsSaving(true);
-    // Ensure tags is array
-    let tagsToSave = editingProject.tags;
-    if (typeof tagsToSave === 'string') {
-      tagsToSave = (tagsToSave as string).split(',').map(s => s.trim()).filter(Boolean);
+    
+    let tagsToSave: string[] = [];
+    if (typeof editingProject.tags === 'string') {
+      tagsToSave = editingProject.tags.split(',').map(s => s.trim()).filter(Boolean);
+    } else if (Array.isArray(editingProject.tags)) {
+      tagsToSave = editingProject.tags;
     }
     
     await saveProject({ ...editingProject, tags: tagsToSave });
@@ -155,7 +169,7 @@ export default function AdminDashboard() {
       const uploadTask = await uploadBytesResumable(storageRef, file);
       const url = await getDownloadURL(uploadTask.ref);
       
-      setEditingProject(prev => prev ? { ...prev, [fieldName]: url } : null);
+      setEditingProject(prev => prev ? ({ ...prev, [fieldName]: url } as ProjectInput) : null);
     } catch (error) {
       console.error("Error uploading file", error);
       alert("Error subiendo el archivo. Asegúrate de configurar las reglas de Storage.");
@@ -202,16 +216,45 @@ export default function AdminDashboard() {
     setIsGenerating(false);
   };
 
-  if (loadingAuth) return <div className="min-h-screen flex items-center justify-center p-8 bg-[var(--bg)] text-[var(--text-primary)]">Loading Auth...</div>;
+  const handleInlineUpdate = async (p: Project, field: keyof Project, value: any) => {
+    try {
+      const updatedProject = { ...p, [field]: value };
+      setProjects(projects.map(proj => proj.id === p.id ? updatedProject : proj));
+      await saveProject(updatedProject);
+    } catch (error) {
+      console.error("Error updating project inline", error);
+    }
+  };
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const newTag = e.currentTarget.value.trim();
+      if (newTag && editingProject) {
+        const currentTags = Array.isArray(editingProject.tags) ? editingProject.tags : editingProject.tags.split(',').map(t => t.trim()).filter(Boolean);
+        if (!currentTags.includes(newTag)) {
+          setEditingProject({ ...editingProject, tags: [...currentTags, newTag] });
+        }
+      }
+      e.currentTarget.value = '';
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    if (editingProject) {
+      const currentTags = Array.isArray(editingProject.tags) ? editingProject.tags : editingProject.tags.split(',').map(t => t.trim()).filter(Boolean);
+      setEditingProject({ ...editingProject, tags: currentTags.filter(t => t !== tagToRemove) });
+    }
+  };
+
+  if (loadingAuth) return <div className="min-h-screen flex items-center justify-center p-8 bg-[var(--bg)] text-[var(--text-primary)]">{lang === 'es' ? 'Cargando Auth...' : 'Loading Auth...'}</div>;
 
   if (!user) {
     return (
       <div className="min-h-screen relative flex flex-col items-center justify-center p-8 overflow-hidden" style={{ background: 'var(--bg)', color: 'var(--text-primary)' }}>
-        {/* Animated Background Orbs */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20 animate-float" style={{ background: 'radial-gradient(circle, var(--accent) 0%, transparent 70%)', filter: 'blur(60px)', animationDuration: '8s' }} />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full opacity-10 animate-float" style={{ background: 'radial-gradient(circle, #7C3AED 0%, transparent 70%)', filter: 'blur(60px)', animationDuration: '10s', animationDelay: '2s' }} />
         
-        {/* Login Card */}
         <div className="relative z-10 flex flex-col items-center p-12 rounded-3xl shadow-2xl reveal visible" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)', border: '1px solid var(--border)' }}>
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg animate-float" style={{ background: 'var(--accent)' }}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -220,9 +263,9 @@ export default function AdminDashboard() {
             </svg>
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-display font-bold mb-3 tracking-tight">Admin Portal</h1>
+          <h1 className="text-4xl md:text-5xl font-display font-bold mb-3 tracking-tight">{lang === 'es' ? 'Portal de Admin' : 'Admin Portal'}</h1>
           <p className="mb-10 text-center max-w-sm" style={{ color: 'var(--text-muted)' }}>
-            Acceso restringido. Por favor, inicia sesión con tu cuenta de administrador.
+            {lang === 'es' ? 'Acceso restringido. Por favor, inicia sesión con tu cuenta de administrador.' : 'Restricted access. Please sign in with your administrator account.'}
           </p>
           
           <button 
@@ -235,7 +278,7 @@ export default function AdminDashboard() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Continuar con Google
+            {lang === 'es' ? 'Continuar con Google' : 'Continue with Google'}
           </button>
         </div>
       </div>
@@ -245,9 +288,9 @@ export default function AdminDashboard() {
   if (user.email !== ADMIN_EMAIL) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-[var(--bg)] text-[var(--text-primary)] text-center">
-        <h1 className="text-4xl font-display font-bold mb-4 text-red-500">Access Denied</h1>
-        <p className="mb-8">Your email ({user.email}) is not authorized.</p>
-        <button onClick={handleLogout} className="btn-ghost" style={{ border: '1px solid var(--border)' }}>Sign out</button>
+        <h1 className="text-4xl font-display font-bold mb-4 text-red-500">{lang === 'es' ? 'Acceso Denegado' : 'Access Denied'}</h1>
+        <p className="mb-8">{lang === 'es' ? `Tu email (${user.email}) no está autorizado.` : `Your email (${user.email}) is not authorized.`}</p>
+        <button onClick={handleLogout} className="btn-ghost" style={{ border: '1px solid var(--border)' }}>{lang === 'es' ? 'Cerrar sesión' : 'Sign out'}</button>
       </div>
     );
   }
@@ -256,24 +299,24 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-12">
-          <h1 className="text-4xl font-display font-bold">Portfolio Admin</h1>
+          <h1 className="text-4xl font-display font-bold">{lang === 'es' ? 'Panel de Administración' : 'Portfolio Admin'}</h1>
           <div className="flex gap-4 items-center">
             <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{user.email}</span>
-            <button onClick={handleLogout} className="btn-ghost text-sm" style={{ border: '1px solid var(--border)' }}>Logout</button>
+            <button onClick={handleLogout} className="btn-ghost text-sm" style={{ border: '1px solid var(--border)' }}>{lang === 'es' ? 'Cerrar sesión' : 'Logout'}</button>
           </div>
         </div>
 
         {editingProject ? (
           <div className="p-8 rounded-2xl relative" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold font-display">{editingProject.id ? 'Edit Project' : 'New Project'}</h2>
+              <h2 className="text-2xl font-bold font-display">{editingProject.id ? (lang === 'es' ? 'Editar Proyecto' : 'Edit Project') : (lang === 'es' ? 'Nuevo Proyecto' : 'New Project')}</h2>
               <button 
                 type="button" 
                 onClick={handleAIAutofill} 
                 disabled={isGenerating}
                 className="btn-accent px-4 py-2 text-sm bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-none shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2"
               >
-                {isGenerating ? 'Generando...' : '✨ Autocompletar con IA'}
+                {isGenerating ? (lang === 'es' ? 'Generando...' : 'Generating...') : '✨ ' + (lang === 'es' ? 'Autocompletar con IA' : 'AI Autofill')}
               </button>
             </div>
             
@@ -284,11 +327,11 @@ export default function AdminDashboard() {
                   <input required type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.id} onChange={e => setEditingProject({...editingProject, id: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1">Title</label>
+                  <label className="block text-sm mb-1">{lang === 'es' ? 'Título' : 'Title'}</label>
                   <input required type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.title} onChange={e => setEditingProject({...editingProject, title: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1">Type (ES)</label>
+                  <label className="block text-sm mb-1">{lang === 'es' ? 'Tipo (ES)' : 'Type (ES)'}</label>
                   <input required type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.type_es} onChange={e => setEditingProject({...editingProject, type_es: e.target.value})} />
                 </div>
                 <div>
@@ -304,45 +347,63 @@ export default function AdminDashboard() {
                   <textarea required className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none h-24" style={{ borderColor: 'var(--border)' }} value={editingProject.desc_en} onChange={e => setEditingProject({...editingProject, desc_en: e.target.value})} />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-sm mb-1">Tags (comma separated)</label>
-                  <input required type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={Array.isArray(editingProject.tags) ? editingProject.tags.join(', ') : editingProject.tags} onChange={e => setEditingProject({...editingProject, tags: e.target.value as any})} />
+                  <label className="block text-sm mb-1">Long Description (ES) - Parrafos separados por línea en blanco</label>
+                  <textarea className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none h-32" style={{ borderColor: 'var(--border)' }} value={(editingProject.longDesc_es || []).join('\n\n')} onChange={e => setEditingProject({...editingProject, longDesc_es: e.target.value.split('\n\n')})} />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm mb-1">Long Description (EN) - Paragraphs separated by blank line</label>
+                  <textarea className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none h-32" style={{ borderColor: 'var(--border)' }} value={(editingProject.longDesc_en || []).join('\n\n')} onChange={e => setEditingProject({...editingProject, longDesc_en: e.target.value.split('\n\n')})} />
+                </div>
+                <div className="col-span-2 flex items-center gap-3 my-2">
+                  <button type="button" onClick={() => setEditingProject({...editingProject, isFeatured: !editingProject.isFeatured})} className="flex items-center justify-center p-2 rounded-full hover:bg-[var(--surface-alt)] transition-colors">
+                    <HeartIcon solid={!!editingProject.isFeatured} />
+                  </button>
+                  <label className="text-sm font-bold cursor-pointer" onClick={() => setEditingProject({...editingProject, isFeatured: !editingProject.isFeatured})}>
+                    {lang === 'es' ? 'Destacado / Favorito (Mostrar en Inicio)' : 'Featured / Favorite (Show on Home)'}
+                  </label>
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm mb-2 font-bold">Tags</label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {(Array.isArray(editingProject.tags) ? editingProject.tags : editingProject.tags.split(',').filter(Boolean)).map((tag, idx) => (
+                      <span key={idx} className="flex items-center gap-1 bg-[var(--surface)] border px-3 py-1 rounded-full text-sm shadow-sm" style={{ borderColor: 'var(--border)' }}>
+                        {tag}
+                        <button type="button" onClick={() => handleRemoveTag(tag)} className="text-red-500 hover:text-red-700 font-bold ml-1 text-xs">✕</button>
+                      </span>
+                    ))}
+                  </div>
+                  <input type="text" placeholder="Escribe un tag y presiona Enter..." className="w-full p-3 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} onKeyDown={handleAddTag} />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Gradient CSS (Background)</label>
                   <input required type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none font-mono text-xs" style={{ borderColor: 'var(--border)' }} value={editingProject.gradient} onChange={e => setEditingProject({...editingProject, gradient: e.target.value})} />
                 </div>
                 
-                {/* Images Upload */}
                 <div className="col-span-2 mt-4">
                   <h3 className="font-bold border-b pb-2 mb-4" style={{ borderColor: 'var(--border)' }}>Project Media</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="border p-4 rounded-lg" style={{ borderColor: 'var(--border)' }}>
-                      <label className="block text-sm mb-2 font-bold">Logo</label>
-                      {editingProject.logoUrl && <img src={editingProject.logoUrl} alt="Logo" className="h-16 object-contain mb-2 bg-[var(--bg)] p-2 rounded" />}
-                      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'logoUrl')} className="text-xs w-full" />
-                      {uploadingField === 'logoUrl' && <p className="text-xs text-[var(--accent)] mt-1">Uploading...</p>}
-                    </div>
-                    
-                    <div className="border p-4 rounded-lg" style={{ borderColor: 'var(--border)' }}>
-                      <label className="block text-sm mb-2 font-bold">Main Screenshot</label>
-                      {editingProject.mainScreenshotUrl && <img src={editingProject.mainScreenshotUrl} alt="Main" className="h-24 object-cover mb-2 rounded" />}
-                      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'mainScreenshotUrl')} className="text-xs w-full" />
-                      {uploadingField === 'mainScreenshotUrl' && <p className="text-xs text-[var(--accent)] mt-1">Uploading...</p>}
-                    </div>
-
-                    <div className="border p-4 rounded-lg" style={{ borderColor: 'var(--border)' }}>
-                      <label className="block text-sm mb-2 font-bold">UI Detail 1</label>
-                      {editingProject.uiDetail1Url && <img src={editingProject.uiDetail1Url} alt="UI 1" className="h-24 object-cover mb-2 rounded" />}
-                      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'uiDetail1Url')} className="text-xs w-full" />
-                      {uploadingField === 'uiDetail1Url' && <p className="text-xs text-[var(--accent)] mt-1">Uploading...</p>}
-                    </div>
-
-                    <div className="border p-4 rounded-lg" style={{ borderColor: 'var(--border)' }}>
-                      <label className="block text-sm mb-2 font-bold">UI Detail 2</label>
-                      {editingProject.uiDetail2Url && <img src={editingProject.uiDetail2Url} alt="UI 2" className="h-24 object-cover mb-2 rounded" />}
-                      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'uiDetail2Url')} className="text-xs w-full" />
-                      {uploadingField === 'uiDetail2Url' && <p className="text-xs text-[var(--accent)] mt-1">Uploading...</p>}
-                    </div>
+                    {/* Reusable Dropzone UI logic */}
+                    {[
+                      { key: 'logoUrl', label: 'Logo' },
+                      { key: 'mainScreenshotUrl', label: 'Vista Previa (Hero)' },
+                      { key: 'uiDetail1Url', label: 'UI Detail 1' },
+                      { key: 'uiDetail2Url', label: 'UI Detail 2' },
+                    ].map(field => (
+                      <div key={field.key} className="border-2 border-dashed p-6 rounded-lg text-center hover:bg-[var(--surface-alt)] transition-colors cursor-pointer relative" style={{ borderColor: 'var(--border)' }}>
+                        <label className="block text-sm mb-2 font-bold cursor-pointer">{field.label}</label>
+                        {editingProject[field.key as keyof ProjectInput] && (
+                           <img src={editingProject[field.key as keyof ProjectInput] as string} alt={field.label} className="h-24 mx-auto object-contain mb-4 bg-[var(--bg)] p-2 rounded shadow-sm" />
+                        )}
+                        <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, field.key as keyof Project)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        <div className="text-xs text-[var(--text-muted)] pointer-events-none">
+                          {uploadingField === field.key ? (
+                            <span className="text-[var(--accent)] font-bold">{lang === 'es' ? 'Subiendo...' : 'Uploading...'}</span>
+                          ) : (
+                            <span>{lang === 'es' ? 'Haz clic o arrastra una imagen aquí' : 'Click or drag an image here'}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -351,22 +412,22 @@ export default function AdminDashboard() {
                   <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.liveUrl || ''} onChange={e => setEditingProject({...editingProject, liveUrl: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1">Repo URL (optional)</label>
+                  <label className="block text-sm mb-1 mt-4">Repo URL (optional)</label>
                   <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.repoUrl || ''} onChange={e => setEditingProject({...editingProject, repoUrl: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1">Video URL (optional)</label>
+                  <label className="block text-sm mb-1 mt-4">Video URL (optional)</label>
                   <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.videoUrl || ''} onChange={e => setEditingProject({...editingProject, videoUrl: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1">Display Order</label>
+                  <label className="block text-sm mb-1 mt-4">{lang === 'es' ? 'Orden (Display Order)' : 'Display Order'}</label>
                   <input required type="number" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.order} onChange={e => setEditingProject({...editingProject, order: parseInt(e.target.value) || 0})} />
                 </div>
               </div>
 
               <div className="flex gap-4 mt-8">
-                <button type="submit" disabled={isSaving} className="btn-accent px-8">{isSaving ? 'Saving...' : 'Save Project'}</button>
-                <button type="button" onClick={() => setEditingProject(null)} className="btn-ghost" style={{ border: '1px solid var(--border)' }}>Cancel</button>
+                <button type="submit" disabled={isSaving} className="btn-accent px-8">{isSaving ? (lang === 'es' ? 'Guardando...' : 'Saving...') : (lang === 'es' ? 'Guardar Proyecto' : 'Save Project')}</button>
+                <button type="button" onClick={() => setEditingProject(null)} className="btn-ghost" style={{ border: '1px solid var(--border)' }}>{lang === 'es' ? 'Cancelar' : 'Cancel'}</button>
               </div>
             </form>
           </div>
@@ -374,18 +435,15 @@ export default function AdminDashboard() {
           <>
             <div className="flex gap-4 mb-8">
               <button 
-                onClick={() => setEditingProject({ id: '', title: '', type_es: '', type_en: '', desc_es: '', desc_en: '', tags: [], gradient: 'linear-gradient(135deg, #000 0%, #333 100%)', order: projects.length + 1 })}
+                onClick={() => setEditingProject({ id: '', title: '', type_es: '', type_en: '', desc_es: '', desc_en: '', longDesc_es: [], longDesc_en: [], tags: [], gradient: 'linear-gradient(135deg, #000 0%, #333 100%)', isFeatured: false, order: projects.length + 1 })}
                 className="btn-accent"
               >
-                + New Project
-              </button>
-              <button onClick={handleSeed} disabled={isSaving} className="btn-ghost" style={{ border: '1px solid var(--border)' }}>
-                Seed Default Data
+                + {lang === 'es' ? 'Nuevo Proyecto' : 'New Project'}
               </button>
             </div>
 
             {loadingData ? (
-              <p>Loading projects...</p>
+              <p>{lang === 'es' ? 'Cargando proyectos...' : 'Loading projects...'}</p>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {projects.map(p => (
@@ -394,18 +452,30 @@ export default function AdminDashboard() {
                       <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden" style={{ background: p.gradient }}>
                         {p.logoUrl ? <img src={p.logoUrl} alt="Logo" className="w-full h-full object-cover" /> : <div className="text-white font-bold">{p.title[0]}</div>}
                       </div>
-                      <div>
+                      <div className="flex flex-col gap-2">
                         <h3 className="font-bold text-lg">{p.title}</h3>
-                        <p className="text-xs text-[var(--text-muted)]">ID: {p.id} | Order: {p.order}</p>
+                        <div className="flex items-center gap-4 text-sm text-[var(--text-muted)]">
+                          <span>ID: {p.id}</span>
+                          <label className="flex items-center gap-1 cursor-pointer" title={lang === 'es' ? 'Orden (Menor a Mayor)' : 'Order (Low to High)'}>
+                            {lang === 'es' ? 'Orden:' : 'Order:'} 
+                            <input type="number" className="w-16 p-1 bg-[var(--bg)] border rounded focus:outline-none text-center ml-1" style={{ borderColor: 'var(--border)' }} value={p.order} onChange={(e) => handleInlineUpdate(p, 'order', parseInt(e.target.value) || 0)} />
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer ml-4">
+                            <button type="button" onClick={() => handleInlineUpdate(p, 'isFeatured', !p.isFeatured)} className="flex items-center justify-center p-1 rounded-full hover:bg-[var(--surface-alt)] transition-colors">
+                              <HeartIcon solid={!!p.isFeatured} />
+                            </button>
+                            <span onClick={() => handleInlineUpdate(p, 'isFeatured', !p.isFeatured)}>{lang === 'es' ? 'Destacado' : 'Featured'}</span>
+                          </label>
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => setEditingProject(p)} className="btn-ghost text-xs" style={{ border: '1px solid var(--border)' }}>Edit</button>
-                      <button onClick={() => handleDelete(p.id)} className="btn-ghost text-xs text-red-500" style={{ border: '1px solid var(--border)' }}>Delete</button>
+                      <button onClick={() => setEditingProject(p)} className="btn-ghost text-xs" style={{ border: '1px solid var(--border)' }}>{lang === 'es' ? 'Editar' : 'Edit'}</button>
+                      <button onClick={() => handleDelete(p.id)} className="btn-ghost text-xs text-red-500" style={{ border: '1px solid var(--border)' }}>{lang === 'es' ? 'Borrar' : 'Delete'}</button>
                     </div>
                   </div>
                 ))}
-                {projects.length === 0 && <p className="text-[var(--text-muted)]">No projects found in Firestore.</p>}
+                {projects.length === 0 && <p className="text-[var(--text-muted)]">{lang === 'es' ? 'No se encontraron proyectos.' : 'No projects found in Firestore.'}</p>}
               </div>
             )}
           </>

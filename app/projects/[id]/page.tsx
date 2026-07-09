@@ -55,6 +55,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const { lang, t } = useLang();
   const [mounted, setMounted] = useState(false);
   const [projectsData, setProjectsData] = useState<Project[] | null>(null);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
   
   useEffect(() => {
     const load = async () => {
@@ -72,10 +73,29 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   }, [id]);
 
   // Fallback to translations if firestore is empty
-  const projectList = (projectsData && projectsData.length > 0) ? projectsData : t.projects.items;
+  const fallbackProjects: Project[] = t.projects.items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    type_es: item.type.es,
+    type_en: item.type.en,
+    desc_es: item.desc.es,
+    desc_en: item.desc.en,
+    tags: [...item.tags],
+    gradient: item.gradient,
+    emoji: item.emoji,
+    liveUrl: item.liveUrl,
+    repoUrl: item.repoUrl,
+    videoUrl: item.videoUrl,
+    isFeatured: item.isFeatured,
+    longDesc_es: item.longDesc_es ? [...item.longDesc_es] : undefined,
+    longDesc_en: item.longDesc_en ? [...item.longDesc_en] : undefined,
+    order: 0,
+  }));
 
-  const project = projectList.find((p: any) => p.id === id);
-  const otherProjects = projectList.filter((p: any) => p.id !== id);
+  const projectList = (projectsData && projectsData.length > 0) ? projectsData : fallbackProjects;
+
+  const project = projectList.find((p) => p.id === id);
+  const otherProjects = projectList.filter((p) => p.id !== id);
 
   if (!mounted) return <div className="min-h-screen" style={{ background: 'var(--bg)' }} />;
 
@@ -112,18 +132,29 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           
           {/* Project Hero */}
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start mb-20">
-            <div className="flex-shrink-0 w-32 h-32 md:w-48 md:h-48 rounded-3xl flex items-center justify-center text-6xl md:text-8xl shadow-2xl reveal" style={{ background: project.gradient }}>
-              <span role="img" aria-hidden="true" className="animate-float">{project.emoji}</span>
+            <div className={`flex-shrink-0 w-32 h-32 md:w-48 md:h-48 rounded-3xl flex items-center justify-center text-6xl md:text-8xl shadow-2xl reveal overflow-hidden ${project.logoUrl ? 'bg-[var(--surface)]' : ''}`} style={!project.logoUrl ? { background: project.gradient } : { border: '1px solid var(--border)' }}>
+              {project.logoUrl ? (
+                <img src={project.logoUrl} alt={`${project.title} Logo`} className="w-full h-full object-contain p-4 animate-float" />
+              ) : (
+                <span role="img" aria-hidden="true" className="animate-float">{project.emoji || project.title[0]}</span>
+              )}
             </div>
             
             <div className="flex-1 reveal" style={{ animationDelay: '100ms' }}>
-              <span className="tag mb-4 inline-block">{lang === 'es' ? (project.type_es || project.type?.es) : (project.type_en || project.type?.en)}</span>
+              <span className="tag mb-4 inline-block">{lang === 'es' ? project.type_es : project.type_en}</span>
               <h1 className="font-display font-bold text-5xl md:text-7xl leading-tight mb-6" style={{ color: 'var(--text-primary)' }}>
                 {project.title}
               </h1>
-              <p className="font-body text-lg md:text-xl leading-relaxed mb-8 max-w-2xl" style={{ color: 'var(--text-muted)' }}>
-                {lang === 'es' ? (project.desc_es || project.desc?.es) : (project.desc_en || project.desc?.en)}
-              </p>
+              <div className="mb-8 max-w-2xl">
+                <p className={`font-body text-lg md:text-xl leading-relaxed transition-all duration-300 ${!isDescExpanded ? 'line-clamp-3' : ''}`} style={{ color: 'var(--text-muted)' }}>
+                  {lang === 'es' ? project.desc_es : project.desc_en}
+                </p>
+                {((lang === 'es' ? project.desc_es : project.desc_en).length > 150) && (
+                  <button onClick={() => setIsDescExpanded(!isDescExpanded)} className="text-[var(--accent)] text-sm font-bold mt-2 hover:underline">
+                    {isDescExpanded ? (lang === 'es' ? 'Mostrar menos' : 'Show less') : (lang === 'es' ? 'Leer más' : 'Read more')}
+                  </button>
+                )}
+              </div>
               
               {/* Project Links (Live, Repo, Video) */}
               <div className="flex flex-wrap items-center gap-4">
@@ -146,18 +177,31 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
 
-          {/* Featured Image Placeholder */}
-          <div className="w-full h-[400px] md:h-[600px] rounded-3xl mb-24 overflow-hidden relative shadow-2xl reveal group" style={{ border: '1px solid var(--border)', animationDelay: '200ms' }}>
-             <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" style={{ background: project.gradient, opacity: 0.8 }} />
-             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} />
-             <div className="absolute inset-0 flex flex-col items-center justify-center text-white/70 backdrop-blur-sm">
-                {project.logoUrl ? (
-                  <img src={project.logoUrl} alt="Logo" className="w-32 h-32 object-contain mb-4" />
-                ) : (
-                  <span className="text-6xl text-white font-bold mb-4">{project.title[0]}</span>
-                )}
-                <span className="font-mono text-sm md:text-base uppercase tracking-widest">{lang === 'es' ? 'VISTA PREVIA' : 'PREVIEW'}</span>
-             </div>
+          {/* Featured Image / Preview Placeholder */}
+          <div className="w-full h-[400px] md:h-[600px] rounded-3xl mb-32 overflow-hidden relative shadow-2xl reveal group" style={{ border: '1px solid var(--border)', animationDelay: '200ms', background: 'var(--surface)' }}>
+             {project.videoUrl ? (
+               project.videoUrl.includes('youtube') || project.videoUrl.includes('youtu.be') ? (
+                 <iframe 
+                   src={project.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                   title="Video Preview"
+                   className="w-full h-full object-cover"
+                   allowFullScreen
+                 />
+               ) : (
+                 <video src={project.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+               )
+             ) : project.mainScreenshotUrl ? (
+               <img src={project.mainScreenshotUrl} alt="Vista Previa" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+             ) : (
+               <>
+                 <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" style={{ background: project.gradient, opacity: 0.8 }} />
+                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} />
+                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white/70 backdrop-blur-sm">
+                    <span className="text-6xl text-white font-bold mb-4">{project.emoji || project.title[0]}</span>
+                    <span className="font-mono text-sm md:text-base uppercase tracking-widest">{lang === 'es' ? 'VISTA PREVIA' : 'PREVIEW'}</span>
+                 </div>
+               </>
+             )}
           </div>
           {/* Image Gallery Section */}
           {(project.mainScreenshotUrl || project.uiDetail1Url || project.uiDetail2Url) && (
@@ -187,21 +231,24 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           )}
 
           {/* Technical Details Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 mb-32 reveal">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 mb-32 reveal mt-32">
             <div className="lg:col-span-2">
               <h2 className="font-display text-3xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
                 {lang === 'es' ? 'Sobre el proyecto' : 'About the project'}
               </h2>
-              <p className="font-body text-lg leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>
-                {lang === 'es' 
-                  ? 'Este proyecto fue desarrollado con un enfoque en alto rendimiento y arquitectura limpia. El objetivo principal fue crear una experiencia de usuario fluida, que se sintiera nativa, al mismo tiempo que mantuviera una base de código escalable y fácil de mantener.'
-                  : 'This project was developed focusing on high performance and clean architecture. The main goal was to create a seamless user experience that felt native, while maintaining a scalable and easily maintainable codebase.'}
-              </p>
-              <p className="font-body text-lg leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                {lang === 'es' 
-                  ? 'Se utilizaron las mejores prácticas de la industria, integrando CI/CD para despliegues automatizados y pruebas continuas. La UI fue diseñada de cero enfocándose en micro-interacciones, modo oscuro y accesibilidad.'
-                  : 'Industry best practices were used, integrating CI/CD for automated deployments and continuous testing. The UI was designed from scratch focusing on micro-interactions, dark mode, and accessibility.'}
-              </p>
+              {lang === 'es' && project.longDesc_es && project.longDesc_es.length > 0 ? (
+                project.longDesc_es.map((p, i) => (
+                  <p key={i} className="font-body text-lg leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>{p}</p>
+                ))
+              ) : lang === 'en' && project.longDesc_en && project.longDesc_en.length > 0 ? (
+                project.longDesc_en.map((p, i) => (
+                  <p key={i} className="font-body text-lg leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>{p}</p>
+                ))
+              ) : (
+                <p className="font-body text-lg leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>
+                  {lang === 'es' ? project.desc_es : project.desc_en}
+                </p>
+              )}
             </div>
             
             {/* Enhanced Tech Stack */}
@@ -225,7 +272,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
         {/* More Projects Section (Horizontal Scroll) */}
         {otherProjects.length > 0 && (
-          <div className="py-24 border-t" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+          <div className="py-24 border-t mt-32" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
             <div className="section-container mb-10 reveal">
               <h2 className="font-display font-bold text-3xl md:text-4xl" style={{ color: 'var(--text-primary)' }}>
                 {t.projects.moreProjects[lang]}
@@ -234,7 +281,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             
             {/* Horizontal Scroll Container */}
             <div className="flex overflow-x-auto gap-6 pb-12 px-6 md:px-12 xl:px-[calc((100vw-1200px)/2)] snap-x snap-mandatory hide-scrollbar reveal" style={{ animationDelay: '100ms' }}>
-              {otherProjects.map((p: any) => (
+              {otherProjects.map((p) => (
                 <Link href={`/projects/${p.id}`} key={p.id} className="snap-start flex-shrink-0 w-[300px] md:w-[400px] group">
                   <div className="card h-full flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl" style={{ border: '1px solid var(--border)', background: 'var(--bg)' }}>
                     <div className="relative h-48 overflow-hidden rounded-t-3xl flex-shrink-0 flex items-center justify-center" style={{ background: p.gradient }}>
@@ -247,7 +294,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                     </div>
                     <div className="p-6 flex flex-col flex-1">
                       <h3 className="font-display font-bold text-xl mb-2" style={{ color: 'var(--text-primary)' }}>{p.title}</h3>
-                      <p className="font-body text-sm leading-relaxed mb-4 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{lang === 'es' ? (p.desc_es || p.desc?.es) : (p.desc_en || p.desc?.en)}</p>
+                      <p className="font-body text-sm leading-relaxed mb-4 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{lang === 'es' ? p.desc_es : p.desc_en}</p>
                       <div className="mt-auto flex items-center font-medium text-sm transition-colors duration-200 group-hover:text-[var(--accent)]" style={{ color: 'var(--text-primary)' }}>
                         {lang === 'es' ? 'Ver proyecto' : 'View project'} <ArrowRight />
                       </div>

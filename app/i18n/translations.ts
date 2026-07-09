@@ -98,16 +98,23 @@ export const translations = {
       'Firebase': { es: 'BD en tiempo real y Auth', en: 'Realtime DB & Auth' },
       'Tailwind CSS': { es: 'CSS orientado a utilidades', en: 'Utility-first CSS' },
       'Zustand': { es: 'Gestión de estado minimalista', en: 'Bear-necessities state mgmt' },
+      'Reanimated': { es: 'Animaciones a 60fps en móvil', en: '60fps mobile animations' },
     },
   },
 
   projects: {
     tag: { es: 'Proyectos', en: 'Projects' },
     heading: { es: 'Trabajo selecto', en: 'Selected work' },
-    ctaBtn: { es: 'Construye el tuyo', en: "Let's build yours" },
-    ctaHeading: { es: '¿Tienes un proyecto en mente?', en: 'Have a project in mind?' },
-    ctaDesc: { es: 'Estoy disponible para trabajo freelance y colaboraciones emocionantes.', en: "I'm available for freelance work and exciting collaborations." },
-    ctaStart: { es: 'Iniciar proyecto', en: 'Start a project' },
+    viewAll: { es: 'Ver todos los proyectos', en: 'View all projects' },
+    filters: {
+      all: { es: 'Todos', en: 'All' },
+      mobile: { es: 'Móvil', en: 'Mobile' },
+      web: { es: 'Web', en: 'Web' },
+    },
+    ctaBtn: { es: 'Hablemos', en: "Let's talk" },
+    ctaHeading: { es: '¿Te gusta lo que ves?', en: 'Like what you see?' },
+    ctaDesc: { es: 'Si te gusta mi trabajo o quieres hacer algo increíble en conjunto, escríbeme.', en: "If you like my work or want to build something amazing together, let's talk." },
+    ctaStart: { es: 'Contáctame', en: 'Get in touch' },
     links: {
       live: { es: 'Ver App en vivo', en: 'Live App' },
       repo: { es: 'Repositorio', en: 'Repository' },
@@ -126,6 +133,15 @@ export const translations = {
         liveUrl: '#',
         repoUrl: '#',
         videoUrl: '#',
+        isFeatured: true,
+        longDesc_es: [
+          'Este proyecto fue desarrollado con un enfoque en alto rendimiento y arquitectura limpia. El objetivo principal fue crear una experiencia de usuario fluida, que se sintiera nativa.',
+          'Se utilizaron las mejores prácticas de la industria, integrando CI/CD para despliegues automatizados y pruebas continuas. La UI fue diseñada de cero enfocándose en micro-interacciones.'
+        ],
+        longDesc_en: [
+          'This project was developed focusing on high performance and clean architecture. The main goal was to create a seamless user experience that felt native.',
+          'Industry best practices were used, integrating CI/CD for automated deployments and continuous testing. The UI was designed from scratch focusing on micro-interactions.'
+        ],
       },
       {
         id: 'shopwave',
@@ -138,6 +154,15 @@ export const translations = {
         liveUrl: '#',
         repoUrl: '#',
         videoUrl: '#',
+        isFeatured: true,
+        longDesc_es: [
+          'Este proyecto fue desarrollado con un enfoque en alto rendimiento y arquitectura limpia. El objetivo principal fue crear una experiencia de usuario fluida, que se sintiera nativa.',
+          'Se utilizaron las mejores prácticas de la industria, integrando CI/CD para despliegues automatizados y pruebas continuas. La UI fue diseñada de cero enfocándose en micro-interacciones.'
+        ],
+        longDesc_en: [
+          'This project was developed focusing on high performance and clean architecture. The main goal was to create a seamless user experience that felt native.',
+          'Industry best practices were used, integrating CI/CD for automated deployments and continuous testing. The UI was designed from scratch focusing on micro-interactions.'
+        ],
       },
       {
         id: 'pulse-dashboard',
@@ -150,6 +175,15 @@ export const translations = {
         liveUrl: '#',
         repoUrl: '#',
         videoUrl: '#',
+        isFeatured: true,
+        longDesc_es: [
+          'Este proyecto fue desarrollado con un enfoque en alto rendimiento y arquitectura limpia. El objetivo principal fue crear una experiencia de usuario fluida, que se sintiera nativa.',
+          'Se utilizaron las mejores prácticas de la industria, integrando CI/CD para despliegues automatizados y pruebas continuas. La UI fue diseñada de cero enfocándose en micro-interacciones.'
+        ],
+        longDesc_en: [
+          'This project was developed focusing on high performance and clean architecture. The main goal was to create a seamless user experience that felt native.',
+          'Industry best practices were used, integrating CI/CD for automated deployments and continuous testing. The UI was designed from scratch focusing on micro-interactions.'
+        ],
       },
       {
         id: 'nomad-chat',
@@ -162,6 +196,15 @@ export const translations = {
         liveUrl: '#',
         repoUrl: '#',
         videoUrl: '#',
+        isFeatured: true,
+        longDesc_es: [
+          'Este proyecto fue desarrollado con un enfoque en alto rendimiento y arquitectura limpia. El objetivo principal fue crear una experiencia de usuario fluida, que se sintiera nativa.',
+          'Se utilizaron las mejores prácticas de la industria, integrando CI/CD para despliegues automatizados y pruebas continuas. La UI fue diseñada de cero enfocándose en micro-interacciones.'
+        ],
+        longDesc_en: [
+          'This project was developed focusing on high performance and clean architecture. The main goal was to create a seamless user experience that felt native.',
+          'Industry best practices were used, integrating CI/CD for automated deployments and continuous testing. The UI was designed from scratch focusing on micro-interactions.'
+        ],
       },
     ],
   },

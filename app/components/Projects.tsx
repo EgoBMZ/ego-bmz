@@ -8,9 +8,9 @@ import { Project } from '../lib/projects';
 function ExternalLinkIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-      <polyline points="15 3 21 3 21 9"/>
-      <line x1="10" y1="14" x2="21" y2="3"/>
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" y1="14" x2="21" y2="3" />
     </svg>
   );
 }
@@ -18,7 +18,7 @@ function ExternalLinkIcon() {
 function ArrowRight() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
     </svg>
   );
 }
@@ -27,6 +27,26 @@ export default function Projects({ projects }: { projects: Project[] }) {
   const { lang, t } = useLang();
   const sectionRef = useRef<HTMLDivElement>(null);
   const projTranslations = t.projects;
+
+  const fallbackProjects: Project[] = projTranslations.items.map((item: any) => ({
+    id: item.id,
+    title: item.title,
+    type_es: item.type.es,
+    type_en: item.type.en,
+    desc_es: item.desc.es,
+    desc_en: item.desc.en,
+    tags: [...item.tags],
+    gradient: item.gradient,
+    emoji: item.emoji,
+    liveUrl: item.liveUrl,
+    repoUrl: item.repoUrl,
+    videoUrl: item.videoUrl,
+    isFeatured: item.isFeatured,
+    longDesc_es: item.longDesc_es ? [...item.longDesc_es] : undefined,
+    longDesc_en: item.longDesc_en ? [...item.longDesc_en] : undefined,
+    order: 0,
+  }));
+  const displayProjects = (projects && projects.length > 0 ? projects : fallbackProjects).filter(p => p.isFeatured).slice(0, 4);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -58,9 +78,9 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {(projects && projects.length > 0 ? projects : projTranslations.items).map((project: any, i: number) => (
-            <article key={project.title} id={`proj-${i + 1}`} className="reveal group" style={{ animationDelay: `${i * 80}ms` }}>
-              <div className="card h-full flex flex-col overflow-hidden" style={{ minHeight: '320px' }}>
+          {displayProjects.map((project: Project, i: number) => (
+            <article key={project.id} className="reveal group" style={{ animationDelay: `${(i % 4) * 80}ms` }}>
+              <Link href={`/projects/${project.id}`} className="card h-full flex flex-col overflow-hidden block" style={{ minHeight: '320px' }}>
                 {/* Gradient header */}
                 <div className="relative h-40 md:h-48 flex items-center justify-center overflow-hidden flex-shrink-0" style={{ background: project.gradient }}>
                   <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0,0,0,0.2) 0%, transparent 50%)` }} />
@@ -77,13 +97,13 @@ export default function Projects({ projects }: { projects: Project[] }) {
                   {/* Type badge */}
                   <div className="absolute top-4 left-4">
                     <span className="font-mono text-xs px-3 py-1 rounded-full font-medium" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.25)' }}>
-                      {lang === 'es' ? (project.type_es || project.type?.es) : (project.type_en || project.type?.en)}
+                      {lang === 'es' ? project.type_es : project.type_en}
                     </span>
                   </div>
-                  {/* Link */}
-                  <Link href={`/projects/${project.id}`} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0" style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', backdropFilter: 'blur(8px)' }} aria-label={`View ${project.title}`}>
+                  {/* ExternalLinkIcon overlay indicator instead of separate link */}
+                  <div className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0" style={{ background: 'rgba(255,255,255,0.25)', color: '#fff', backdropFilter: 'blur(8px)' }} aria-hidden="true">
                     <ExternalLinkIcon />
-                  </Link>
+                  </div>
                 </div>
 
                 {/* Content */}
@@ -93,16 +113,23 @@ export default function Projects({ projects }: { projects: Project[] }) {
                       {project.title}
                     </h3>
                     <p className="font-body text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                      {lang === 'es' ? (project.desc_es || project.desc?.es) : (project.desc_en || project.desc?.en)}
+                      {lang === 'es' ? project.desc_es : project.desc_en}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-auto">
                     {project.tags.map((tag: string) => <span key={tag} className="tag text-xs">{tag}</span>)}
                   </div>
                 </div>
-              </div>
+              </Link>
             </article>
           ))}
+        </div>
+
+        {/* View all projects link */}
+        <div className="flex justify-center mt-12 reveal">
+          <Link href="/projects" className="btn-ghost flex items-center gap-2">
+            {(projTranslations as any).viewAll[lang]} <ArrowRight />
+          </Link>
         </div>
 
         {/* CTA block */}
@@ -114,7 +141,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
           <a href="#contact" className="btn-accent flex-shrink-0">
             {projTranslations.ctaStart[lang]}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+              <line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" />
             </svg>
           </a>
         </div>

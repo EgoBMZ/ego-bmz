@@ -10,6 +10,7 @@ export interface Project {
   desc_en: string;
   tags: string[];
   gradient: string;
+  emoji?: string;
   logoUrl?: string;
   mainScreenshotUrl?: string;
   uiDetail1Url?: string;
@@ -17,6 +18,9 @@ export interface Project {
   liveUrl?: string;
   repoUrl?: string;
   videoUrl?: string;
+  isFeatured?: boolean;
+  longDesc_es?: string[];
+  longDesc_en?: string[];
   order: number;
 }
 
