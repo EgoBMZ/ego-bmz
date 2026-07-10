@@ -294,8 +294,8 @@ export default function Navbar() {
           {/* Socials */}
           <div className="absolute bottom-8 left-6 right-6 flex items-center gap-3">
             {[
-              { href: GITHUB_URL,   label: 'GitHub',   icon: <GithubIcon /> },
               { href: LINKEDIN_URL, label: 'LinkedIn', icon: <LinkedInIcon /> },
+              { href: GITHUB_URL,   label: 'GitHub',   icon: <GithubIcon /> },
             ].map((s) => (
               <a
                 key={s.label}

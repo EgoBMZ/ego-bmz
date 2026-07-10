@@ -56,6 +56,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [mounted, setMounted] = useState(false);
   const [projectsData, setProjectsData] = useState<Project[] | null>(null);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   
   useEffect(() => {
     const load = async () => {
@@ -134,7 +135,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start mb-20">
             <div className={`flex-shrink-0 w-32 h-32 md:w-48 md:h-48 rounded-3xl flex items-center justify-center text-6xl md:text-8xl shadow-2xl reveal overflow-hidden ${project.logoUrl ? 'bg-[var(--surface)]' : ''}`} style={!project.logoUrl ? { background: project.gradient } : { border: '1px solid var(--border)' }}>
               {project.logoUrl ? (
-                <img src={project.logoUrl} alt={`${project.title} Logo`} className="w-full h-full object-contain p-4 animate-float" />
+                <img src={project.logoUrl} alt={`${project.title} Logo`} className="w-full h-full object-contain p-4 rounded-3xl animate-float" />
               ) : (
                 <span role="img" aria-hidden="true" className="animate-float">{project.emoji || project.title[0]}</span>
               )}
@@ -146,62 +147,36 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 {project.title}
               </h1>
               <div className="mb-8 max-w-2xl">
-                <p className={`font-body text-lg md:text-xl leading-relaxed transition-all duration-300 ${!isDescExpanded ? 'line-clamp-3' : ''}`} style={{ color: 'var(--text-muted)' }}>
-                  {lang === 'es' ? project.desc_es : project.desc_en}
-                </p>
-                {((lang === 'es' ? project.desc_es : project.desc_en).length > 150) && (
-                  <button onClick={() => setIsDescExpanded(!isDescExpanded)} className="text-[var(--accent)] text-sm font-bold mt-2 hover:underline">
-                    {isDescExpanded ? (lang === 'es' ? 'Mostrar menos' : 'Show less') : (lang === 'es' ? 'Leer más' : 'Read more')}
-                  </button>
-                )}
+                {(() => {
+                  const fullDesc = lang === 'es' ? project.desc_es : project.desc_en;
+                  const displayedDesc = fullDesc.length > 300 ? `${fullDesc.slice(0, 300)}...` : fullDesc;
+                  return (
+                    <p className="font-body text-lg md:text-xl leading-relaxed text-justify" style={{ color: 'var(--text-muted)' }}>
+                      {displayedDesc}
+                    </p>
+                  );
+                })()}
               </div>
               
               {/* Project Links (Live, Repo, Video) */}
               <div className="flex flex-wrap items-center gap-4">
-                {project.liveUrl && (
+                {project.liveUrl && project.liveUrl !== '#' && (
                   <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="btn-accent text-sm flex items-center gap-2 hover:scale-105 transition-transform">
                     {t.projects.links.live[lang]} <ExternalLinkIcon />
                   </a>
                 )}
-                {project.repoUrl && (
+                {project.repoUrl && project.repoUrl !== '#' && (
                   <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost text-sm flex items-center gap-2" style={{ border: '1px solid var(--border)' }}>
                     <GithubIcon /> {t.projects.links.repo[lang]}
                   </a>
                 )}
-                {project.videoUrl && (
+                {project.videoUrl && project.videoUrl !== '#' && (
                   <a href={project.videoUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost text-sm flex items-center gap-2" style={{ border: '1px solid var(--border)' }}>
                     <PlayIcon /> {t.projects.links.video[lang]}
                   </a>
                 )}
               </div>
             </div>
-          </div>
-
-          {/* Featured Image / Preview Placeholder */}
-          <div className="w-full h-[400px] md:h-[600px] rounded-3xl mb-32 overflow-hidden relative shadow-2xl reveal group" style={{ border: '1px solid var(--border)', animationDelay: '200ms', background: 'var(--surface)' }}>
-             {project.videoUrl ? (
-               project.videoUrl.includes('youtube') || project.videoUrl.includes('youtu.be') ? (
-                 <iframe 
-                   src={project.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                   title="Video Preview"
-                   className="w-full h-full object-cover"
-                   allowFullScreen
-                 />
-               ) : (
-                 <video src={project.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-               )
-             ) : project.mainScreenshotUrl ? (
-               <img src={project.mainScreenshotUrl} alt="Vista Previa" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-             ) : (
-               <>
-                 <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" style={{ background: project.gradient, opacity: 0.8 }} />
-                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} />
-                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white/70 backdrop-blur-sm">
-                    <span className="text-6xl text-white font-bold mb-4">{project.emoji || project.title[0]}</span>
-                    <span className="font-mono text-sm md:text-base uppercase tracking-widest">{lang === 'es' ? 'VISTA PREVIA' : 'PREVIEW'}</span>
-                 </div>
-               </>
-             )}
           </div>
           {/* Image Gallery Section */}
           {(project.mainScreenshotUrl || project.uiDetail1Url || project.uiDetail2Url) && (
@@ -213,17 +188,32 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {project.mainScreenshotUrl && (
                   <div className={`rounded-3xl overflow-hidden shadow-2xl ${!(project.uiDetail1Url || project.uiDetail2Url) ? 'md:col-span-2' : 'md:col-span-2'}`}>
-                    <img src={project.mainScreenshotUrl} alt="Main Screenshot" className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700" />
+                    <img 
+                      src={project.mainScreenshotUrl} 
+                      alt="Main Screenshot" 
+                      onClick={() => setLightboxImage(project.mainScreenshotUrl || null)}
+                      className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700 cursor-zoom-in" 
+                    />
                   </div>
                 )}
                 {project.uiDetail1Url && (
                   <div className="rounded-3xl overflow-hidden shadow-xl mt-6 md:mt-0">
-                    <img src={project.uiDetail1Url} alt="UI Detail 1" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                    <img 
+                      src={project.uiDetail1Url} 
+                      alt="UI Detail 1" 
+                      onClick={() => setLightboxImage(project.uiDetail1Url || null)}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-700 cursor-zoom-in" 
+                    />
                   </div>
                 )}
                 {project.uiDetail2Url && (
                   <div className="rounded-3xl overflow-hidden shadow-xl mt-6 md:mt-0">
-                    <img src={project.uiDetail2Url} alt="UI Detail 2" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                    <img 
+                      src={project.uiDetail2Url} 
+                      alt="UI Detail 2" 
+                      onClick={() => setLightboxImage(project.uiDetail2Url || null)}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-700 cursor-zoom-in" 
+                    />
                   </div>
                 )}
               </div>
@@ -238,14 +228,14 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               </h2>
               {lang === 'es' && project.longDesc_es && project.longDesc_es.length > 0 ? (
                 project.longDesc_es.map((p, i) => (
-                  <p key={i} className="font-body text-lg leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>{p}</p>
+                  <p key={i} className="font-body text-lg leading-relaxed mb-6 text-justify" style={{ color: 'var(--text-muted)' }}>{p}</p>
                 ))
               ) : lang === 'en' && project.longDesc_en && project.longDesc_en.length > 0 ? (
                 project.longDesc_en.map((p, i) => (
-                  <p key={i} className="font-body text-lg leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>{p}</p>
+                  <p key={i} className="font-body text-lg leading-relaxed mb-6 text-justify" style={{ color: 'var(--text-muted)' }}>{p}</p>
                 ))
               ) : (
-                <p className="font-body text-lg leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>
+                <p className="font-body text-lg leading-relaxed mb-6 text-justify" style={{ color: 'var(--text-muted)' }}>
                   {lang === 'es' ? project.desc_es : project.desc_en}
                 </p>
               )}
@@ -317,6 +307,28 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           scrollbar-width: none;
         }
       `}} />
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 md:p-10 transition-opacity duration-300 cursor-zoom-out"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button 
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors w-12 h-12 rounded-full bg-white/10 flex items-center justify-center font-bold text-xl cursor-pointer"
+            aria-label="Close lightbox"
+          >
+            ✕
+          </button>
+          <div className="relative max-w-6xl max-h-[85vh] overflow-hidden rounded-2xl" onClick={e => e.stopPropagation()}>
+            <img 
+              src={lightboxImage} 
+              alt="Fullscreen View" 
+              className="w-full h-auto max-h-[85vh] object-contain select-none shadow-2xl rounded-2xl" 
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

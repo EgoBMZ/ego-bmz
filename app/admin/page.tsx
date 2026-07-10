@@ -67,8 +67,9 @@ const SEED_PROJECTS: Project[] = [
 
 const ADMIN_EMAIL = 'egobmz@gmail.com'; // Change if needed
 
-interface ProjectInput extends Omit<Project, 'tags'> {
+interface ProjectInput extends Omit<Project, 'tags' | 'order'> {
   tags: string | string[];
+  order: number | '';
 }
 
 export default function AdminDashboard() {
@@ -147,7 +148,11 @@ export default function AdminDashboard() {
       tagsToSave = editingProject.tags;
     }
     
-    await saveProject({ ...editingProject, tags: tagsToSave });
+    await saveProject({ 
+      ...editingProject, 
+      tags: tagsToSave,
+      order: editingProject.order === '' ? 0 : Number(editingProject.order)
+    });
     setEditingProject(null);
     await fetchProjects();
     setIsSaving(false);
@@ -206,7 +211,9 @@ export default function AdminDashboard() {
           type_en: data.type_en || prev.type_en,
           desc_en: data.desc_en || prev.desc_en,
           gradient: data.gradient || prev.gradient,
-          tags: data.tags || prev.tags
+          tags: data.tags || prev.tags,
+          longDesc_es: data.longDesc_es || prev.longDesc_es,
+          longDesc_en: data.longDesc_en || prev.longDesc_en
         }) : null);
       }
     } catch (error) {
@@ -244,6 +251,16 @@ export default function AdminDashboard() {
     if (editingProject) {
       const currentTags = Array.isArray(editingProject.tags) ? editingProject.tags : editingProject.tags.split(',').map(t => t.trim()).filter(Boolean);
       setEditingProject({ ...editingProject, tags: currentTags.filter(t => t !== tagToRemove) });
+    }
+  };
+
+  const handleToggleTag = (tag: string) => {
+    if (!editingProject) return;
+    const currentTags = Array.isArray(editingProject.tags) ? editingProject.tags : editingProject.tags.split(',').map(t => t.trim()).filter(Boolean);
+    if (currentTags.includes(tag)) {
+      setEditingProject({ ...editingProject, tags: currentTags.filter(t => t !== tag) });
+    } else {
+      setEditingProject({ ...editingProject, tags: [...currentTags, tag] });
     }
   };
 
@@ -364,15 +381,46 @@ export default function AdminDashboard() {
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm mb-2 font-bold">Tags</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {(Array.isArray(editingProject.tags) ? editingProject.tags : editingProject.tags.split(',').filter(Boolean)).map((tag, idx) => (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {(Array.isArray(editingProject.tags) ? editingProject.tags : (editingProject.tags || '').split(',').filter(Boolean)).map((tag, idx) => (
                       <span key={idx} className="flex items-center gap-1 bg-[var(--surface)] border px-3 py-1 rounded-full text-sm shadow-sm" style={{ borderColor: 'var(--border)' }}>
                         {tag}
                         <button type="button" onClick={() => handleRemoveTag(tag)} className="text-red-500 hover:text-red-700 font-bold ml-1 text-xs">✕</button>
                       </span>
                     ))}
                   </div>
-                  <input type="text" placeholder="Escribe un tag y presiona Enter..." className="w-full p-3 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} onKeyDown={handleAddTag} />
+                  <input type="text" placeholder="Escribe un tag y presiona Enter..." className="w-full p-3 rounded-lg bg-[var(--bg)] border focus:outline-none mb-4" style={{ borderColor: 'var(--border)' }} onKeyDown={handleAddTag} />
+                  
+                  {/* Clickable Suggestion Pills */}
+                  <div className="border p-4 rounded-xl" style={{ borderColor: 'var(--border)', background: 'var(--surface-alt)' }}>
+                    <div className="text-xs uppercase tracking-wider font-bold mb-3" style={{ color: 'var(--text-muted)' }}>
+                      {lang === 'es' ? 'Sugerencias (haz clic para agregar/quitar):' : 'Suggestions (click to add/remove):'}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from(new Set([
+                        'React Native', 'Expo', 'Next.js', 'TypeScript', 'React', 'Node.js', 'Firebase', 'Tailwind CSS', 'Zustand', 'Reanimated',
+                        ...projects.flatMap(p => p.tags || [])
+                      ])).sort((a, b) => a.localeCompare(b)).map((tag) => {
+                        const currentTags = Array.isArray(editingProject.tags) ? editingProject.tags : (editingProject.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+                        const isSelected = currentTags.includes(tag);
+                        return (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => handleToggleTag(tag)}
+                            className={`px-3 py-1 text-xs rounded-full border transition-all hover:scale-105 ${
+                              isSelected 
+                                ? 'bg-[var(--accent)] border-[var(--accent)] text-white font-semibold' 
+                                : 'bg-[var(--surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                            }`}
+                            style={{ borderColor: isSelected ? 'var(--accent)' : 'var(--border)' }}
+                          >
+                            {isSelected ? '✓ ' : '+ '} {tag}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Gradient CSS (Background)</label>
@@ -421,7 +469,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <label className="block text-sm mb-1 mt-4">{lang === 'es' ? 'Orden (Display Order)' : 'Display Order'}</label>
-                  <input required type="number" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.order} onChange={e => setEditingProject({...editingProject, order: parseInt(e.target.value) || 0})} />
+                  <input required type="number" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.order} onChange={e => setEditingProject({...editingProject, order: e.target.value === '' ? '' : parseInt(e.target.value)})} />
                 </div>
               </div>
 
