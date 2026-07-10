@@ -24,9 +24,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 items-start pb-10 mb-10" style={{ borderBottom: '1px solid var(--border)' }}>
           {/* Logo & Tagline */}
           <div className="flex flex-col items-start gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-display font-bold text-sm" style={{ background: 'var(--accent)' }}>E</div>
-              <span className="font-display font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>EgoBMZ</span>
+            <div className="flex items-center">
+              <img src="/logo.svg" alt="EgoBMZ Logo" className="w-24 h-24 object-contain" />
             </div>
             <p className="font-body text-sm max-w-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
               {lang === 'es' 

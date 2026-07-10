@@ -121,16 +121,8 @@ export default function Navbar() {
         <div className="section-container">
           <nav className="flex items-center justify-between h-16 md:h-18">
             {/* Logo */}
-            <a href="/" className="flex items-center gap-2.5 group" aria-label="EgoBMZ Home">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-display font-bold text-sm transition-transform duration-300 group-hover:scale-110"
-                style={{ background: 'var(--accent)' }}
-              >
-                E
-              </div>
-              <span className="font-display font-semibold text-lg tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                EgoBMZ
-              </span>
+            <a href="/" className="flex items-center group py-1" aria-label="EgoBMZ Home">
+              <img src="/logo.svg" alt="EgoBMZ Logo" className="w-14 h-14 md:w-16 md:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
             </a>
 
             {/* Desktop Nav Links */}
@@ -255,9 +247,8 @@ export default function Navbar() {
         <div className="mobile-drawer-panel" ref={drawerRef}>
           {/* Header */}
           <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-display font-bold text-sm" style={{ background: 'var(--accent)' }}>E</div>
-              <span className="font-display font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>EgoBMZ</span>
+            <div className="flex items-center">
+              <img src="/logo.svg" alt="EgoBMZ Logo" className="w-16 h-16 object-contain" />
             </div>
             <button onClick={() => setMenuOpen(false)} aria-label="Close menu" className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-[var(--surface-alt)] transition-colors" style={{ color: 'var(--text-muted)' }}>
               <CloseIcon />
