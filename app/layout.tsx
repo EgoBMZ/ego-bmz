@@ -26,6 +26,11 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.VERCEL_PROJECT_PRODUCTION_URL 
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` 
+      : (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+  ),
   title: 'EgoBMZ — Mobile & Web Developer',
   description:
     'Software developer specialized in mobile apps (React Native + Expo) and web applications (React + Next.js). Building fast, beautiful, production-ready products.',

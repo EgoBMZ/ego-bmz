@@ -55,7 +55,6 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const { lang, t } = useLang();
   const [mounted, setMounted] = useState(false);
   const [projectsData, setProjectsData] = useState<Project[] | null>(null);
-  const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   
   useEffect(() => {
@@ -147,15 +146,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 {project.title}
               </h1>
               <div className="mb-8 max-w-2xl">
-                {(() => {
-                  const fullDesc = lang === 'es' ? project.desc_es : project.desc_en;
-                  const displayedDesc = fullDesc.length > 300 ? `${fullDesc.slice(0, 300)}...` : fullDesc;
-                  return (
-                    <p className="font-body text-lg md:text-xl leading-relaxed text-justify" style={{ color: 'var(--text-muted)' }}>
-                      {displayedDesc}
-                    </p>
-                  );
-                })()}
+                <p className="font-body text-lg md:text-xl leading-relaxed text-justify line-clamp-4" style={{ color: 'var(--text-muted)' }}>
+                  {lang === 'es' ? project.desc_es : project.desc_en}
+                </p>
               </div>
               
               {/* Project Links (Live, Repo, Video) */}
