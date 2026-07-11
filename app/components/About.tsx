@@ -94,7 +94,7 @@ export default function About() {
                 className="absolute top-8 left-8 font-display font-bold select-none pointer-events-none leading-none"
                 style={{ fontSize: '90px', color: 'var(--border-strong)', letterSpacing: '-0.04em' }}
               >
-                EG
+                EGO
               </div>
 
               {/* Bottom content */}
