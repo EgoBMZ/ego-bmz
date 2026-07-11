@@ -169,7 +169,7 @@ export default function Hero() {
           </div>
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-8 pt-8 animate-fade-in-up delay-500" style={{ borderTop: '1px solid var(--border)' }}>
+          <div className="flex flex-wrap gap-8 pt-8 lg:mb-10  animate-fade-in-up delay-500" style={{ borderTop: '1px solid var(--border)' }}>
             {[
               { num: h.stat1num[lang], label: h.stat1label[lang] },
               { num: h.stat2num[lang], label: h.stat2label[lang] },
