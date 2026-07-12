@@ -169,15 +169,15 @@ export default function Hero() {
           </div>
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-8 pt-8 lg:mb-10  animate-fade-in-up delay-500" style={{ borderTop: '1px solid var(--border)' }}>
+          <div className="flex flex-wrap gap-6 md:gap-8 pt-8 pb-8 md:pb-0 lg:mb-10 animate-fade-in-up delay-500" style={{ borderTop: '1px solid var(--border)' }}>
             {[
               { num: h.stat1num[lang], label: h.stat1label[lang] },
               { num: h.stat2num[lang], label: h.stat2label[lang] },
               { num: h.stat3num[lang], label: h.stat3label[lang] },
             ].map((stat) => (
               <div key={stat.label}>
-                <div className="font-display font-bold text-3xl mb-1" style={{ color: 'var(--text-primary)' }}>{stat.num}</div>
-                <div className="font-body text-sm" style={{ color: 'var(--text-muted)' }}>{stat.label}</div>
+                <div className="font-display font-bold text-2xl md:text-3xl mb-1" style={{ color: 'var(--text-primary)' }}>{stat.num}</div>
+                <div className="font-body text-xs md:text-sm" style={{ color: 'var(--text-muted)' }}>{stat.label}</div>
               </div>
             ))}
           </div>

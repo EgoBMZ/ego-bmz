@@ -21,11 +21,11 @@ export default function Footer() {
   return (
     <footer className="py-12 md:py-16" style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)' }}>
       <div className="section-container">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 items-start pb-10 mb-10" style={{ borderBottom: '1px solid var(--border)' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 items-center md:items-start pb-10 mb-10" style={{ borderBottom: '1px solid var(--border)' }}>
           {/* Logo & Tagline */}
-          <div className="flex flex-col items-start gap-4">
+          <div className="flex flex-col items-center text-center md:items-start md:text-left gap-4">
             <div className="flex items-center">
-              <img src="/logo.svg" alt="EgoBMZ Logo" className="w-24 h-24 object-contain" />
+              <img src="/logo.svg" alt="EgoBMZ Logo" className="w-16 h-16 md:w-24 md:h-24 object-contain" />
             </div>
             <p className="font-body text-sm max-w-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
               {lang === 'es' 
@@ -43,11 +43,11 @@ export default function Footer() {
           </div>
 
           {/* Quick links */}
-          <div className="flex flex-col items-start gap-4">
+          <div className="flex flex-col items-center md:items-start gap-4">
             <span className="font-display font-bold text-xs uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>
               {lang === 'es' ? 'Navegación' : 'Navigation'}
             </span>
-            <nav className="flex flex-col gap-2.5" aria-label="Footer navigation">
+            <nav className="flex flex-col items-center md:items-start gap-2.5" aria-label="Footer navigation">
               {LINKS.map((link) => (
                 <a key={link.href} href={link.href} className="font-body text-sm transition-colors duration-200 hover:text-[var(--accent)]" style={{ color: 'var(--text-muted)' }}>
                   {link.label}
@@ -57,11 +57,11 @@ export default function Footer() {
           </div>
 
           {/* Socials & Contact info */}
-          <div className="flex flex-col items-start gap-4">
+          <div className="flex flex-col items-center md:items-start gap-4">
             <span className="font-display font-bold text-xs uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>
               {lang === 'es' ? 'Redes & Contacto' : 'Socials & Contact'}
             </span>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center md:justify-start gap-3">
               {/* LinkedIn */}
               <a 
                 href={LINKEDIN_URL} 
