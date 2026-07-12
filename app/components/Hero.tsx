@@ -3,9 +3,18 @@
 import { useEffect, useRef } from 'react';
 import { useLang } from '../providers/LanguageProvider';
 
+import * as icons from 'simple-icons';
+
 const TECH_TAGS = [
-  'React Native', 'Expo', 'Next.js', 'TypeScript',
-  'React', 'Node.js', 'Tailwind', 'Zustand', 'Firebase', 'GraphQL',
+  { name: 'React Native', icon: icons.siReact },
+  { name: 'Expo', icon: icons.siExpo },
+  { name: 'Next.js', icon: icons.siNextdotjs },
+  { name: 'TypeScript', icon: icons.siTypescript },
+  { name: 'React', icon: icons.siReact },
+  { name: 'Node.js', icon: icons.siNodedotjs },
+  { name: 'Tailwind', icon: icons.siTailwindcss },
+  { name: 'Firebase', icon: icons.siFirebase },
+  { name: 'GraphQL', icon: icons.siGraphql },
 ];
 
 function ArrowUpRight() {
@@ -169,7 +178,7 @@ export default function Hero() {
           </div>
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-6 md:gap-8 pt-8 pb-8 md:pb-0 lg:mb-10 animate-fade-in-up delay-500" style={{ borderTop: '1px solid var(--border)' }}>
+          <div className="flex flex-wrap gap-6 md:gap-8 pt-8 pb-12 md:pb-0 lg:mb-10 animate-fade-in-up delay-500" style={{ borderTop: '1px solid var(--border)' }}>
             {[
               { num: h.stat1num[lang], label: h.stat1label[lang] },
               { num: h.stat2num[lang], label: h.stat2label[lang] },
@@ -185,12 +194,20 @@ export default function Hero() {
       </div>
 
       {/* Marquee */}
-      <div className="absolute bottom-0 left-0 right-0 py-4 overflow-hidden mt-50" style={{ borderTop: '1px solid var(--border)', background: 'var(--surface-alt)' }}>
-        <div className="flex gap-6 animate-marquee">
-          {[...TECH_TAGS, ...TECH_TAGS].map((tag, i) => (
-            <span key={i} className="flex-none font-mono text-xs px-4 py-1.5 rounded-full whitespace-nowrap" style={{ background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-              {tag}
-            </span>
+      <div className="absolute bottom-0 left-0 right-0 py-4 overflow-hidden" style={{ borderTop: '1px solid var(--border)', background: 'var(--surface-alt)' }}>
+        <div className="flex w-max animate-marquee">
+          {/* We create two identical blocks that each exceed the screen width to ensure a seamless infinite scroll */}
+          {[1, 2].map((block) => (
+            <div key={block} className="flex gap-6 pr-6">
+              {[...TECH_TAGS, ...TECH_TAGS, ...TECH_TAGS, ...TECH_TAGS].map((tag, i) => (
+                <span key={`${block}-${i}`} className="flex-none flex items-center gap-2 font-mono text-xs px-4 py-1.5 rounded-full whitespace-nowrap" style={{ background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                  <svg role="img" viewBox="0 0 24 24" width="14" height="14" fill={`#${tag.icon.hex}`}>
+                    <path d={tag.icon.path} />
+                  </svg>
+                  {tag.name}
+                </span>
+              ))}
+            </div>
           ))}
         </div>
       </div>
