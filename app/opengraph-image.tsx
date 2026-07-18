@@ -1,16 +1,16 @@
 import { ImageResponse } from 'next/og';
-
-export const runtime = 'edge';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 export const alt = 'EgoBMZ Portfolio';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 export default async function Image() {
-  // Read the local PNG logo
-  const logoData = await fetch(new URL('../public/logo-transparent.png', import.meta.url)).then(
-    (res) => res.arrayBuffer()
-  );
+  // Read the local PNG logo using fs
+  const logoPath = join(process.cwd(), 'public/logo-transparent.png');
+  const logoBuffer = readFileSync(logoPath);
+  const logoSrc = `data:image/png;base64,${logoBuffer.toString('base64')}`;
 
   return new ImageResponse(
     (
@@ -25,10 +25,9 @@ export default async function Image() {
         }}
       >
         <img
-          src={logoData as any}
-          width="400"
-          height="400"
-          style={{ objectFit: 'contain' }}
+          src={logoSrc}
+          width={400}
+          height={400}
         />
       </div>
     ),
