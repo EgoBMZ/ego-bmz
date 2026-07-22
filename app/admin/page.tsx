@@ -145,7 +145,19 @@ export default function AdminDashboard() {
     if (typeof editingProject.tags === 'string') {
       tagsToSave = editingProject.tags.split(',').map(s => s.trim()).filter(Boolean);
     } else if (Array.isArray(editingProject.tags)) {
-      tagsToSave = editingProject.tags;
+      tagsToSave = [...editingProject.tags];
+    }
+
+    // Capture any pending tags typed in the input field but not submitted with Enter
+    const tagInputEl = document.getElementById('tag-input') as HTMLInputElement;
+    if (tagInputEl && tagInputEl.value.trim()) {
+      const pendingTags = tagInputEl.value.split(',').map(t => t.trim()).filter(Boolean);
+      pendingTags.forEach(tag => {
+        if (!tagsToSave.includes(tag)) {
+          tagsToSave.push(tag);
+        }
+      });
+      tagInputEl.value = '';
     }
     
     await saveProject({ 
@@ -236,11 +248,14 @@ export default function AdminDashboard() {
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const newTag = e.currentTarget.value.trim();
-      if (newTag && editingProject) {
+      const newTagValue = e.currentTarget.value.trim();
+      if (newTagValue && editingProject) {
         const currentTags = Array.isArray(editingProject.tags) ? editingProject.tags : editingProject.tags.split(',').map(t => t.trim()).filter(Boolean);
-        if (!currentTags.includes(newTag)) {
-          setEditingProject({ ...editingProject, tags: [...currentTags, newTag] });
+        const newTags = newTagValue.split(',').map(t => t.trim()).filter(Boolean);
+        const tagsToAdd = newTags.filter(t => !currentTags.includes(t));
+        
+        if (tagsToAdd.length > 0) {
+          setEditingProject({ ...editingProject, tags: [...currentTags, ...tagsToAdd] });
         }
       }
       e.currentTarget.value = '';
@@ -382,14 +397,14 @@ export default function AdminDashboard() {
                 <div className="col-span-2">
                   <label className="block text-sm mb-2 font-bold">Tags</label>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {(Array.isArray(editingProject.tags) ? editingProject.tags : (editingProject.tags || '').split(',').filter(Boolean)).map((tag, idx) => (
+                    {(Array.isArray(editingProject.tags) ? editingProject.tags : (editingProject.tags || '').split(',').map(t => t.trim()).filter(Boolean)).map((tag, idx) => (
                       <span key={idx} className="flex items-center gap-1 bg-[var(--surface)] border px-3 py-1 rounded-full text-sm shadow-sm" style={{ borderColor: 'var(--border)' }}>
                         {tag}
                         <button type="button" onClick={() => handleRemoveTag(tag)} className="text-red-500 hover:text-red-700 font-bold ml-1 text-xs">✕</button>
                       </span>
                     ))}
                   </div>
-                  <input type="text" placeholder="Escribe un tag y presiona Enter..." className="w-full p-3 rounded-lg bg-[var(--bg)] border focus:outline-none mb-4" style={{ borderColor: 'var(--border)' }} onKeyDown={handleAddTag} />
+                  <input id="tag-input" type="text" placeholder="Escribe un tag y presiona Enter..." className="w-full p-3 rounded-lg bg-[var(--bg)] border focus:outline-none mb-4" style={{ borderColor: 'var(--border)' }} onKeyDown={handleAddTag} />
                   
                   {/* Clickable Suggestion Pills */}
                   <div className="border p-4 rounded-xl" style={{ borderColor: 'var(--border)', background: 'var(--surface-alt)' }}>
