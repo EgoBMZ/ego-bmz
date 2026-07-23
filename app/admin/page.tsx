@@ -475,8 +475,14 @@ export default function AdminDashboard() {
                   <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.liveUrl || ''} onChange={e => setEditingProject({...editingProject, liveUrl: e.target.value})} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1 mt-4">Repo URL (optional)</label>
-                  <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.repoUrl || ''} onChange={e => setEditingProject({...editingProject, repoUrl: e.target.value})} />
+                  <label className="block text-sm mb-1 mt-4">Repo URL 1 (optional)</label>
+                  <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none mb-2" style={{ borderColor: 'var(--border)' }} value={editingProject.repoUrl || ''} onChange={e => setEditingProject({...editingProject, repoUrl: e.target.value})} placeholder="https://github.com/..." />
+                  <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.repoUrlLabel || ''} onChange={e => setEditingProject({...editingProject, repoUrlLabel: e.target.value})} placeholder={lang === 'es' ? 'Texto del botón (ej. GitHub Front)' : 'Button text (e.g. GitHub Front)'} />
+                </div>
+                <div>
+                  <label className="block text-sm mb-1 mt-4">Repo URL 2 (optional)</label>
+                  <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none mb-2" style={{ borderColor: 'var(--border)' }} value={editingProject.repoUrl2 || ''} onChange={e => setEditingProject({...editingProject, repoUrl2: e.target.value})} placeholder="https://github.com/..." />
+                  <input type="text" className="w-full p-2 rounded-lg bg-[var(--bg)] border focus:outline-none" style={{ borderColor: 'var(--border)' }} value={editingProject.repoUrl2Label || ''} onChange={e => setEditingProject({...editingProject, repoUrl2Label: e.target.value})} placeholder={lang === 'es' ? 'Texto del botón (ej. GitHub Back)' : 'Button text (e.g. GitHub Back)'} />
                 </div>
                 <div>
                   <label className="block text-sm mb-1 mt-4">Video URL (optional)</label>

@@ -160,7 +160,12 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 )}
                 {project.repoUrl && project.repoUrl !== '#' && (
                   <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost text-sm flex items-center gap-2" style={{ border: '1px solid var(--border)' }}>
-                    <GithubIcon /> {t.projects.links.repo[lang]}
+                    <GithubIcon /> {project.repoUrlLabel || t.projects.links.repo[lang]}
+                  </a>
+                )}
+                {project.repoUrl2 && project.repoUrl2 !== '#' && (
+                  <a href={project.repoUrl2} target="_blank" rel="noopener noreferrer" className="btn-ghost text-sm flex items-center gap-2" style={{ border: '1px solid var(--border)' }}>
+                    <GithubIcon /> {project.repoUrl2Label || t.projects.links.repo[lang]}
                   </a>
                 )}
                 {project.videoUrl && project.videoUrl !== '#' && (

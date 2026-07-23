@@ -17,6 +17,9 @@ export interface Project {
   uiDetail2Url?: string;
   liveUrl?: string;
   repoUrl?: string;
+  repoUrlLabel?: string;
+  repoUrl2?: string;
+  repoUrl2Label?: string;
   videoUrl?: string;
   isFeatured?: boolean;
   longDesc_es?: string[];
