@@ -146,7 +146,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 {project.title}
               </h1>
               <div className="mb-8 max-w-2xl">
-                <p className="font-body text-lg md:text-xl leading-relaxed text-justify line-clamp-4" style={{ color: 'var(--text-muted)' }}>
+                <p className="font-body text-lg md:text-xl leading-relaxed text-justify" style={{ color: 'var(--text-muted)' }}>
                   {lang === 'es' ? project.desc_es : project.desc_en}
                 </p>
               </div>
